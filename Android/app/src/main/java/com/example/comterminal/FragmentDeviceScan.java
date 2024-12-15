@@ -121,14 +121,15 @@ public class FragmentDeviceScan extends Fragment {
 
     // Функция для запуска сканирования устройств Bluetooth
     private void startBluetoothScan() {
-        new Thread(() -> {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
             bluetoothAdapter.startDiscovery();
-            requireActivity().runOnUiThread(() -> {
-                Toast.makeText(requireContext(), "Сканирование началось", Toast.LENGTH_SHORT).show();
-            });
-        }).start();
+            deviceList.clear(); // Clear the device list before starting the scan
+            deviceAdapter.notifyDataSetChanged();
+            Toast.makeText(requireContext(), "Начинаю сканирование устройств", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(requireContext(), "Отсутствуют разрешения для сканирования Bluetooth", Toast.LENGTH_SHORT).show();
+        }
     }
-
 
     // Обработка результатов запроса разрешений
     @Override
@@ -145,15 +146,20 @@ public class FragmentDeviceScan extends Fragment {
 
     // Подключение к выбранному устройству
     private void connectToDevice(BluetoothDevice device) {
-        try {
-            // Используем стандартный UUID для SPP
-            UUID sppUuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-            BluetoothSocket socket = device.createRfcommSocketToServiceRecord(sppUuid);
-            socket.connect();
-            Toast.makeText(requireContext(), "Подключение к устройству " + device.getName() + " успешно", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(requireContext(), "Ошибка подключения", Toast.LENGTH_SHORT).show();
-        }
+        new Thread(() -> {
+            try {
+                BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+                bluetoothAdapter.cancelDiscovery(); // Остановите сканирование перед подключением
+                socket.connect();
+
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Подключение к устройству " + device.getName() + " успешно", Toast.LENGTH_SHORT).show()
+                );
+            } catch (IOException e) {
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Не удалось подключиться", Toast.LENGTH_SHORT).show()
+                );
+            }
+        }).start();
     }
 }
