@@ -27,17 +27,36 @@ public class MainActivity extends AppCompatActivity {
             @NonNull
             @Override
             public Fragment createFragment(int position) {
-                return position == 0 ? new FragmentBluetooth() : new FragmentDeviceScan();
+                switch (position) {
+                    case 0:
+                        return new FragmentBluetooth();
+                    case 1:
+                        return new FragmentDeviceScan();
+                    case 2:
+                        return new FragmentTerminal();
+                    default:
+                        throw new IllegalArgumentException("Invalid position");
+                }
             }
 
             @Override
             public int getItemCount() {
-                return 2; // Две вкладки
+                return 3; // Три вкладки
             }
         });
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            tab.setText(position == 0 ? "Bluetooth" : "Scan Devices");
+            switch (position) {
+                case 0:
+                    tab.setText("Bluetooth");
+                    break;
+                case 1:
+                    tab.setText("Scan Devices");
+                    break;
+                case 2:
+                    tab.setText("Terminal");
+                    break;
+            }
         }).attach();
     }
 }
