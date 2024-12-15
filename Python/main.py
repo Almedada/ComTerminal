@@ -1,33 +1,32 @@
 import serial
 import time
 
-
-def connect_bluetooth(port, baudrate=9600):
+# Функция для отправки данных через Bluetooth
+def send_data(ser, data):
     """
-    Устанавливает соединение с Bluetooth-портом через COM.
+    Отправляет данные через Bluetooth.
     """
     try:
-        # Открытие Bluetooth-порта
-        ser = serial.Serial(port, baudrate, timeout=1)
-        print(f"Соединение с {port} установлено.")
-        return ser
+        ser.write(data.encode('utf-8'))  # Отправляем данные как байты
+        print(f"Данные отправлены: {data}")
     except serial.SerialException as e:
-        print(f"Ошибка подключения к порту {port}: {e}")
-        return None
+        print(f"Ошибка при отправке данных: {e}")
 
-
-def listen_for_data(ser):
+# Функция для прослушивания входящих данных и их отправки обратно
+def listen_for_data_and_send(ser):
     """
-    Слушает данные, поступающие через Bluetooth-порт.
+    Слушает данные и отправляет их.
     """
     while True:
         try:
-            # Чтение доступных данных
             if ser.in_waiting > 0:
-                data = ser.read(ser.in_waiting)  # Чтение всех доступных данных
+                data = ser.read(ser.in_waiting)  # Чтение доступных данных
                 print(f"Получены данные: {data.decode('utf-8')}")
-
-            time.sleep(1)  # Пауза между циклами
+                
+                # Пример отправки данных обратно
+                send_data(ser, "Ответ: " + data.decode('utf-8'))
+                
+            time.sleep(1)
         except serial.SerialException as e:
             print(f"Ошибка при получении данных: {e}")
             break
@@ -35,23 +34,26 @@ def listen_for_data(ser):
             print("Ожидание прервано пользователем.")
             break
 
+# Подключение к Bluetooth-устройству через COM-порт
+def connect_bluetooth(port):
+    """
+    Подключение к Bluetooth через COM-порт.
+    """
+    try:
+        # Укажите COM-порт для Bluetooth-соединения
+        ser = serial.Serial(port, baudrate=9600, timeout=1)
+        print(f"Подключение к {port} успешно.")
+        return ser
+    except serial.SerialException as e:
+        print(f"Ошибка при подключении: {e}")
+        return None
 
-def main():
-    # Настройка COM-порта для подключения Bluetooth
-    port = "COM5"  # Замените на свой COM-порт, например COM4, COM5 и т.д.
-    baudrate = 9600  # Скорость передачи данных
-
-    # Подключаемся к Bluetooth-серверу
-    ser = connect_bluetooth(port, baudrate)
-
-    if ser:
-        # Если соединение установлено, начинаем слушать данные
-        listen_for_data(ser)
-
-        # Закрываем порт после завершения работы
-        ser.close()
-        print("Порт закрыт.")
-
-
+# Основной код
 if __name__ == "__main__":
-    main()
+    # Укажите правильный порт для вашего Bluetooth-устройства, например, "COM3" или "/dev/rfcomm0"
+    port = "COM5"
+    ser = connect_bluetooth(port)
+    
+    if ser:
+        # Запуск прослушивания и отправки данных
+        listen_for_data_and_send(ser)

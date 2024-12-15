@@ -5,39 +5,27 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Field for input data -->
     <EditText
-        android:id="@+id/et_terminal_input"
+        android:id="@+id/editTextInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter text to send"
-        android:inputType="text"
-        android:padding="8dp" />
+        android:hint="Enter message"
+        android:inputType="text" />
 
-    <LinearLayout
+    <!-- Button for sending data -->
+    <Button
+        android:id="@+id/buttonSend"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end">
+        android:text="Send" />
 
-        <Button
-            android:id="@+id/btn_clear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Clear" />
-
-        <Button
-            android:id="@+id/btn_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send"
-            android:layout_marginStart="16dp" />
-    </LinearLayout>
-
+    <!-- Field to display received data -->
     <TextView
-        android:id="@+id/tv_terminal_output"
+        android:id="@+id/textViewOutput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text=""
-        android:paddingTop="16dp"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:text="Received data will appear here"
+        android:paddingTop="16dp" />
+
 </LinearLayout>

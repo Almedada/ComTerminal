@@ -1,10 +1,8 @@
 package com.example.comterminal;
 
 import android.Manifest;
-import android.bluetooth.BluetoothSocket;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,13 +10,16 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.Button;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.view.View;
 import android.app.Activity;
+import android.util.Log;
+import android.bluetooth.BluetoothSocket;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.UUID;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -26,16 +27,15 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.UUID;
-
+import android.view.LayoutInflater;  // Импортируем LayoutInflater
+import android.view.View;  // Импортируем View
+import android.view.ViewGroup;  // Импортируем ViewGroup
 public class FragmentDeviceScan extends Fragment {
 
     private BluetoothAdapter bluetoothAdapter;
     private ArrayAdapter<String> deviceAdapter;
     private ArrayList<String> deviceList;
+    private BluetoothSocket socket;
 
     private static final int REQUEST_BLUETOOTH_PERMISSIONS = 1;
 
@@ -53,15 +53,11 @@ public class FragmentDeviceScan extends Fragment {
         ListView listView = view.findViewById(R.id.deviceListView);
         listView.setAdapter(deviceAdapter);
 
-        Button retryButton = view.findViewById(R.id.retryScanButton); // Button to retry the scan
-        retryButton.setOnClickListener(v -> startBluetoothScan()); // Restart scanning when button is clicked
-
         // Инициализация лаунчера для разрешений
         enableBluetoothLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (getActivity() != null && result.getResultCode() == Activity.RESULT_OK) {
                 startBluetoothScan();
-            }
-            else {
+            } else {
                 Toast.makeText(requireContext(), "Bluetooth не был включен", Toast.LENGTH_SHORT).show();
             }
         });
@@ -87,12 +83,26 @@ public class FragmentDeviceScan extends Fragment {
 
         bluetoothAdapter.startDiscovery();
 
-        // Set an item click listener to connect to the selected device
+        // Устанавливаем слушатель для кликов на элементы списка
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             String deviceInfo = deviceList.get(position);
             String deviceAddress = deviceInfo.substring(deviceInfo.indexOf("\n") + 1);
             BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
             connectToDevice(device);
+        });
+
+        // Обработчик для кнопки "Повторить поиск"
+        Button repeatScanButton = view.findViewById(R.id.repeatScanButton);
+        repeatScanButton.setOnClickListener(v -> startBluetoothScan()); // Повторный запуск сканирования
+
+        // Обработчик для кнопки "Отправить сообщение"
+        Button sendMessageButton = view.findViewById(R.id.sendMessageButton);
+        sendMessageButton.setOnClickListener(v -> {
+            if (socket != null && socket.isConnected()) {
+                sendData(socket, "Dude!"); // Отправить сообщение "Dude!"
+            } else {
+                Toast.makeText(requireContext(), "Нет подключенного устройства", Toast.LENGTH_SHORT).show();
+            }
         });
 
         return view;
@@ -148,17 +158,54 @@ public class FragmentDeviceScan extends Fragment {
     private void connectToDevice(BluetoothDevice device) {
         new Thread(() -> {
             try {
-                BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-                bluetoothAdapter.cancelDiscovery(); // Остановите сканирование перед подключением
-                socket.connect();
+                Log.d("FragmentTerminal", "Попытка подключения к устройству: " + device.getName());
 
+                // Создаем сокет для подключения
+                BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+                Log.d("FragmentTerminal", "Сокет создан для устройства: " + device.getName());
+
+                bluetoothAdapter.cancelDiscovery(); // Останавливаем сканирование перед подключением
+                Log.d("FragmentTerminal", "Сканирование отменено.");
+
+                // Попытка подключения
+                socket.connect();
+                Log.d("FragmentTerminal", "Подключение успешно!");
+
+                // Передаем сообщение о подключении в UI поток
                 requireActivity().runOnUiThread(() ->
                         Toast.makeText(requireContext(), "Подключение к устройству " + device.getName() + " успешно", Toast.LENGTH_SHORT).show()
                 );
+
+                // Сохраняем сокет для дальнейшего использования
+                this.socket = socket;
+
+                // Отправка сообщения после успешного подключения
+                sendData(socket, "Hello World");
+
             } catch (IOException e) {
+                // Логируем ошибку, если подключение не удалось
+                Log.e("FragmentTerminal", "Ошибка подключения: " + e.getMessage());
+
+                // Передаем сообщение об ошибке в UI поток
                 requireActivity().runOnUiThread(() ->
                         Toast.makeText(requireContext(), "Не удалось подключиться", Toast.LENGTH_SHORT).show()
                 );
+            }
+        }).start();
+    }
+
+    // Метод для отправки данных через BluetoothSocket
+    private void sendData(BluetoothSocket socket, String message) {
+        new Thread(() -> {
+            try {
+                // Получаем выходной поток сокета
+                OutputStream outputStream = socket.getOutputStream();
+                // Преобразуем сообщение в байты и отправляем
+                outputStream.write(message.getBytes());
+                outputStream.flush();
+                Log.d("FragmentTerminal", "Сообщение отправлено: " + message);
+            } catch (IOException e) {
+                Log.e("FragmentTerminal", "Ошибка при отправке данных: " + e.getMessage());
             }
         }).start();
     }
