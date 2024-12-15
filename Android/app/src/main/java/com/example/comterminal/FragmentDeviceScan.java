@@ -121,15 +121,14 @@ public class FragmentDeviceScan extends Fragment {
 
     // Функция для запуска сканирования устройств Bluetooth
     private void startBluetoothScan() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
+        new Thread(() -> {
             bluetoothAdapter.startDiscovery();
-            deviceList.clear(); // Clear the device list before starting the scan
-            deviceAdapter.notifyDataSetChanged();
-            Toast.makeText(requireContext(), "Начинаю сканирование устройств", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(requireContext(), "Отсутствуют разрешения для сканирования Bluetooth", Toast.LENGTH_SHORT).show();
-        }
+            requireActivity().runOnUiThread(() -> {
+                Toast.makeText(requireContext(), "Сканирование началось", Toast.LENGTH_SHORT).show();
+            });
+        }).start();
     }
+
 
     // Обработка результатов запроса разрешений
     @Override
