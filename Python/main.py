@@ -62,7 +62,7 @@ def connect_bluetooth(port):
 if __name__ == "__main__":
     # Укажите правильный порт для вашего Bluetooth-устройства,
     # например, "COM3" или "/dev/rfcomm0"
-    port = "COM3"
+    port = "COM6"
     ser = connect_bluetooth(port)
 
     if ser:

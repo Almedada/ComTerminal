@@ -3,25 +3,22 @@ package com.example.comterminal;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-import android.app.Activity;
-import android.util.Log;
-import android.bluetooth.BluetoothSocket;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.UUID;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -30,9 +27,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.UUID;
 
 public class FragmentDeviceScan extends Fragment {
 
@@ -55,26 +53,41 @@ public class FragmentDeviceScan extends Fragment {
         deviceList = new ArrayList<>();
         deviceAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, deviceList);
 
-        ListView listView = view.findViewById(R.id.deviceListView);
-        listView.setAdapter(deviceAdapter);
+        ArrayList<String> connectedDevicesList = new ArrayList<>();
+        ArrayAdapter<String> connectedDevicesAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, connectedDevicesList);
+
+        ListView deviceListView = view.findViewById(R.id.deviceListView);
+        ListView connectedDevicesListView = view.findViewById(R.id.connectedDevicesListView);
+
+        deviceListView.setAdapter(deviceAdapter);
+        connectedDevicesListView.setAdapter(connectedDevicesAdapter);
 
         progressBar = view.findViewById(R.id.progressBar);
 
         enableBluetoothLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-            if (getActivity() != null && result.getResultCode() == Activity.RESULT_OK) {
+            if (result.getResultCode() == android.app.Activity.RESULT_OK) {
                 startBluetoothScan();
             } else {
                 Toast.makeText(requireContext(), "Bluetooth не был включен", Toast.LENGTH_SHORT).show();
             }
         });
 
-        checkAndRequestPermissions();
+        // Показать уже подключенные устройства
+        for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
+            connectedDevicesList.add(device.getName() + "\n" + device.getAddress());
+        }
+        connectedDevicesAdapter.notifyDataSetChanged();
 
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        requireContext().registerReceiver(bluetoothReceiver, filter);
+        // Обработчик нажатия на подключенные устройства
+        connectedDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
+            String deviceInfo = connectedDevicesList.get(position);
+            String deviceAddress = deviceInfo.substring(deviceInfo.indexOf("\n") + 1);
+            BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
+            connectToDevice(device);
+        });
 
-        listView.setOnItemClickListener((parent, view1, position, id) -> {
+        // Обработчик нажатия на найденные устройства
+        deviceListView.setOnItemClickListener((parent, view1, position, id) -> {
             String deviceInfo = deviceList.get(position);
             String deviceAddress = deviceInfo.substring(deviceInfo.indexOf("\n") + 1);
             BluetoothDevice device = bluetoothAdapter.getRemoteDevice(deviceAddress);
@@ -92,6 +105,14 @@ public class FragmentDeviceScan extends Fragment {
                 Toast.makeText(requireContext(), "Нет подключенного устройства", Toast.LENGTH_SHORT).show();
             }
         });
+
+        checkAndRequestPermissions();
+
+        // Регистрация BroadcastReceiver
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        requireContext().registerReceiver(bluetoothReceiver, filter);
 
         return view;
     }
