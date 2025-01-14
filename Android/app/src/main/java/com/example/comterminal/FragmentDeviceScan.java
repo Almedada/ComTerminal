@@ -12,10 +12,12 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.app.Activity;
 import android.util.Log;
 import android.bluetooth.BluetoothSocket;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -24,9 +26,10 @@ import java.util.UUID;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +45,8 @@ public class FragmentDeviceScan extends Fragment {
 
     private ActivityResultLauncher<Intent> enableBluetoothLauncher;
 
+    private ProgressBar progressBar;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_device_scan, container, false);
@@ -52,6 +57,8 @@ public class FragmentDeviceScan extends Fragment {
 
         ListView listView = view.findViewById(R.id.deviceListView);
         listView.setAdapter(deviceAdapter);
+
+        progressBar = view.findViewById(R.id.progressBar);
 
         enableBluetoothLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (getActivity() != null && result.getResultCode() == Activity.RESULT_OK) {
@@ -64,6 +71,7 @@ public class FragmentDeviceScan extends Fragment {
         checkAndRequestPermissions();
 
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         requireContext().registerReceiver(bluetoothReceiver, filter);
 
         listView.setOnItemClickListener((parent, view1, position, id) -> {
@@ -79,7 +87,7 @@ public class FragmentDeviceScan extends Fragment {
         Button sendMessageButton = view.findViewById(R.id.sendMessageButton);
         sendMessageButton.setOnClickListener(v -> {
             if (socket != null && socket.isConnected()) {
-                sendData(socket, "Dude!");
+                sendData(socket, "Соединение разорвано!");
             } else {
                 Toast.makeText(requireContext(), "Нет подключенного устройства", Toast.LENGTH_SHORT).show();
             }
@@ -94,7 +102,6 @@ public class FragmentDeviceScan extends Fragment {
         requireContext().unregisterReceiver(bluetoothReceiver);
     }
 
-    // Метод для проверки и запроса разрешений
     private void checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
@@ -111,7 +118,6 @@ public class FragmentDeviceScan extends Fragment {
         }
     }
 
-    // Получение и обработка результатов запроса разрешений
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -124,19 +130,18 @@ public class FragmentDeviceScan extends Fragment {
         }
     }
 
-    // Начало сканирования Bluetooth устройств
     private void startBluetoothScan() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
             bluetoothAdapter.startDiscovery();
             deviceList.clear();
             deviceAdapter.notifyDataSetChanged();
+            progressBar.setVisibility(View.VISIBLE);
             Toast.makeText(requireContext(), "Начинаю сканирование устройств", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(requireContext(), "Отсутствуют разрешения для сканирования Bluetooth", Toast.LENGTH_SHORT).show();
         }
     }
 
-    // Обработчик найденных устройств Bluetooth
     private final BroadcastReceiver bluetoothReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -146,11 +151,13 @@ public class FragmentDeviceScan extends Fragment {
                     deviceList.add(device.getName() + "\n" + device.getAddress());
                     deviceAdapter.notifyDataSetChanged();
                 }
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(intent.getAction())) {
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(requireContext(), "Сканирование завершено", Toast.LENGTH_SHORT).show();
             }
         }
     };
 
-    // Подключение к выбранному устройству
     private void connectToDevice(BluetoothDevice device) {
         if (socket != null && socket.isConnected()) {
             Toast.makeText(requireContext(), "Устройство уже подключено", Toast.LENGTH_SHORT).show();
@@ -163,7 +170,7 @@ public class FragmentDeviceScan extends Fragment {
                 socket.connect();
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(requireContext(), "Устройство подключено", Toast.LENGTH_SHORT).show();
-                    this.socket = socket;  // Используем поле socket класса
+                    this.socket = socket;
                     ((MainActivity) requireActivity()).setBluetoothSocket(socket);
                 });
             } catch (IOException e) {
@@ -172,7 +179,6 @@ public class FragmentDeviceScan extends Fragment {
         }).start();
     }
 
-    // Отправка данных через BluetoothSocket
     private void sendData(BluetoothSocket socket, String message) {
         new Thread(() -> {
             try (OutputStream outputStream = socket.getOutputStream()) {
