@@ -24,7 +24,6 @@
 git clone https://github.com/Almedada/ComTerminal.git 
 ```
 
-**Включение режима разработчика на Android-устройстве:**
 
 ### Шаг 1: Установите **Android Studio**
 Если **Android Studio** ещё не установлена, скачайте и установите последнюю версию с официального сайта:
