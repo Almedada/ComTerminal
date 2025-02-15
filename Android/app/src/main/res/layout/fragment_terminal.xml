@@ -21,11 +21,16 @@
         android:text="Send" />
 
     <!-- Field to display received data -->
-    <TextView
-        android:id="@+id/textViewOutput"
+    <ScrollView
+        android:id="@+id/text_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Received data will appear here"
-        android:paddingTop="16dp" />
-
+        android:layout_height="match_parent"
+        >
+        <TextView
+            android:id="@+id/textViewOutput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:text="Received data will appear here" />
+    </ScrollView>
 </LinearLayout>

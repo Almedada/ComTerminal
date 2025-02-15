@@ -4,12 +4,14 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -26,6 +28,7 @@ public class FragmentTerminal extends Fragment {
     private OutputStream outputStream;
     private InputStream inputStream;
     private Handler handler = new Handler(Looper.getMainLooper());
+    private ScrollView mText_scroll_view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,9 +50,11 @@ public class FragmentTerminal extends Fragment {
         textViewOutput = view.findViewById(R.id.textViewOutput);
         editTextInput = view.findViewById(R.id.editTextInput);
         Button buttonSend = view.findViewById(R.id.buttonSend);
+        mText_scroll_view = view.findViewById(R.id.text_scroll_view);
 
         // Устанавливаем обработчик клика для кнопки отправки
         buttonSend.setOnClickListener(v -> sendMessage());
+
 
         return view;
     }
@@ -74,7 +79,9 @@ public class FragmentTerminal extends Fragment {
                 try {
                     outputStream.write(message.getBytes()); // Отправка данных по Bluetooth
                     outputStream.flush();
-                    editTextInput.setText(""); // Очистка поля ввода
+                    //mText_scroll_view.scrollTo(0,mText_scroll_view.getBottom());
+                    mText_scroll_view.fullScroll(View.FOCUS_DOWN);
+                    //editTextInput.setText(""); // Очистка поля ввода
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
