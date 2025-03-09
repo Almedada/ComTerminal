@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize fragments
         terminalFragment = new FragmentTerminal();
+        FragmentDatabaseView databaseFragment = new FragmentDatabaseView(); // Новый фрагмент
 
         // Set the adapter for ViewPager2
         viewPager.setAdapter(new FragmentStateAdapter(this) {
@@ -43,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
                             terminalFragment.setBluetoothSocket(bluetoothSocket);
                         }
                         return terminalFragment;
+                    case 3:
+                        return databaseFragment; // Новый фрагмент для просмотра базы данных
                     default:
                         throw new IllegalArgumentException("Invalid position");
                 }
@@ -50,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public int getItemCount() {
-                return 3; // Three tabs
+                return 4; // Обновляем количество вкладок
             }
         });
 
@@ -65,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 2:
                     tab.setText("Terminal");
+                    break;
+                case 3:
+                    tab.setText("Database View"); // Заголовок для нового фрагмента
                     break;
             }
         }).attach();

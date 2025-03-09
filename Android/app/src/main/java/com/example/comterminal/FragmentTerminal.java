@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +14,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import com.example.comterminal.database.AppDatabase;
+import com.example.comterminal.database.TerminalMessage;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 public class FragmentTerminal extends Fragment {
 
@@ -29,6 +31,9 @@ public class FragmentTerminal extends Fragment {
     private InputStream inputStream;
     private Handler handler = new Handler(Looper.getMainLooper());
     private ScrollView mText_scroll_view;
+
+    // Поле для базы данных
+    private AppDatabase database;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -46,15 +51,21 @@ public class FragmentTerminal extends Fragment {
             Log.e("FragmentTerminal", "BluetoothSocket равен null. Проверьте соединение.");
         }
 
+        // Инициализация базы данных
+        database = AppDatabase.getInstance(requireContext());
+
         // Инициализация элементов интерфейса
         textViewOutput = view.findViewById(R.id.textViewOutput);
         editTextInput = view.findViewById(R.id.editTextInput);
         Button buttonSend = view.findViewById(R.id.buttonSend);
+        Button buttonSave = view.findViewById(R.id.buttonSave);
         mText_scroll_view = view.findViewById(R.id.text_scroll_view);
 
         // Устанавливаем обработчик клика для кнопки отправки
         buttonSend.setOnClickListener(v -> sendMessage());
 
+        // Обработчик кнопки сохранения данных в БД
+        buttonSave.setOnClickListener(v -> saveData());
 
         return view;
     }
@@ -79,9 +90,7 @@ public class FragmentTerminal extends Fragment {
                 try {
                     outputStream.write(message.getBytes()); // Отправка данных по Bluetooth
                     outputStream.flush();
-                    //mText_scroll_view.scrollTo(0,mText_scroll_view.getBottom());
                     mText_scroll_view.fullScroll(View.FOCUS_DOWN);
-                    //editTextInput.setText(""); // Очистка поля ввода
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -109,5 +118,17 @@ public class FragmentTerminal extends Fragment {
                 }
             }
         }).start();
+    }
+
+    // Метод для сохранения данных в базу данных SQLite
+    private void saveData() {
+        String text = textViewOutput.getText().toString();
+        if (!text.isEmpty()) {
+            new Thread(() -> {
+                // Создаем новую запись
+                TerminalMessage message = new TerminalMessage(text, System.currentTimeMillis());
+                database.terminalMessageDao().insert(message); // Добавляем новую запись в базу данных
+            }).start();
+        }
     }
 }

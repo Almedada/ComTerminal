@@ -18,7 +18,13 @@
         android:id="@+id/buttonSend"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send" />
+        android:text="Отправить" />
+
+    <Button
+        android:id="@+id/buttonSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Сохранить данные" />
 
     <!-- Field to display received data -->
     <ScrollView
@@ -31,6 +37,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
-            android:text="Received data will appear here" />
+            />
     </ScrollView>
 </LinearLayout>
