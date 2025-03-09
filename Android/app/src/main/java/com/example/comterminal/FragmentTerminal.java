@@ -4,23 +4,24 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
+import android.util.Log;
+
 import androidx.fragment.app.Fragment;
+
 import com.example.comterminal.database.AppDatabase;
 import com.example.comterminal.database.TerminalMessage;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 public class FragmentTerminal extends Fragment {
 
@@ -32,63 +33,52 @@ public class FragmentTerminal extends Fragment {
     private Handler handler = new Handler(Looper.getMainLooper());
     private ScrollView mText_scroll_view;
 
-    // Поле для базы данных
     private AppDatabase database;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Загружаем разметку для этого фрагмента
         View view = inflater.inflate(R.layout.fragment_terminal, container, false);
 
-        // Получаем ссылку на MainActivity, чтобы извлечь BluetoothSocket
         MainActivity activity = (MainActivity) requireActivity();
         BluetoothSocket socket = activity.getBluetoothSocket();
 
-        // Если BluetoothSocket не равен null, инициализируем его
         if (socket != null) {
-            setBluetoothSocket(socket); // Устанавливаем сокет через метод setBluetoothSocket
+            setBluetoothSocket(socket);
         } else {
             Log.e("FragmentTerminal", "BluetoothSocket равен null. Проверьте соединение.");
         }
 
-        // Инициализация базы данных
         database = AppDatabase.getInstance(requireContext());
 
-        // Инициализация элементов интерфейса
         textViewOutput = view.findViewById(R.id.textViewOutput);
         editTextInput = view.findViewById(R.id.editTextInput);
         Button buttonSend = view.findViewById(R.id.buttonSend);
         Button buttonSave = view.findViewById(R.id.buttonSave);
         mText_scroll_view = view.findViewById(R.id.text_scroll_view);
 
-        // Устанавливаем обработчик клика для кнопки отправки
         buttonSend.setOnClickListener(v -> sendMessage());
-
-        // Обработчик кнопки сохранения данных в БД
         buttonSave.setOnClickListener(v -> saveData());
 
         return view;
     }
 
-    // Метод для установки Bluetooth-сокета
     public void setBluetoothSocket(BluetoothSocket socket) {
         this.bluetoothSocket = socket;
         try {
             outputStream = bluetoothSocket.getOutputStream();
             inputStream = bluetoothSocket.getInputStream();
-            startListeningForData(); // Начинаем прослушивание входящих данных
+            startListeningForData();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Метод для отправки сообщения
     private void sendMessage() {
         String message = editTextInput.getText().toString();
         if (!message.isEmpty()) {
             if (outputStream != null) {
                 try {
-                    outputStream.write(message.getBytes()); // Отправка данных по Bluetooth
+                    outputStream.write(message.getBytes());
                     outputStream.flush();
                     mText_scroll_view.fullScroll(View.FOCUS_DOWN);
                 } catch (IOException e) {
@@ -100,18 +90,18 @@ public class FragmentTerminal extends Fragment {
         }
     }
 
-    // Метод для прослушивания входящих данных
     private void startListeningForData() {
         new Thread(() -> {
             byte[] buffer = new byte[1024];
             int bytes;
             while (true) {
                 try {
-                    // Чтение данных из входящего потока
                     bytes = inputStream.read(buffer);
                     String readMessage = new String(buffer, 0, bytes);
-                    // Обновление UI на главном потоке
-                    handler.post(() -> textViewOutput.append(readMessage + "\n"));
+                    handler.post(() -> {
+                        textViewOutput.append(readMessage + "\n");
+                        addMessageToLayout(readMessage); // Добавляем сообщение в ScrollView
+                    });
                 } catch (IOException e) {
                     e.printStackTrace();
                     break;
@@ -120,15 +110,46 @@ public class FragmentTerminal extends Fragment {
         }).start();
     }
 
-    // Метод для сохранения данных в базу данных SQLite
     private void saveData() {
         String text = textViewOutput.getText().toString();
         if (!text.isEmpty()) {
             new Thread(() -> {
-                // Создаем новую запись
                 TerminalMessage message = new TerminalMessage(text, System.currentTimeMillis());
-                database.terminalMessageDao().insert(message); // Добавляем новую запись в базу данных
+                database.terminalMessageDao().insert(message);
             }).start();
         }
+    }
+
+    // Метод для добавления сообщения в ScrollView с кнопкой сохранения
+    private void addMessageToLayout(String messageText) {
+        LinearLayout containerLayout = mText_scroll_view.findViewById(R.id.messageContainer); // Где контейнер для сообщений
+        LinearLayout messageLayout = new LinearLayout(getContext());
+        messageLayout.setOrientation(LinearLayout.HORIZONTAL);
+        messageLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        TextView messageView = new TextView(getContext());
+        messageView.setText(messageText);
+        messageView.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)); // Текстовое сообщение
+
+        Button saveButton = new Button(getContext());
+        saveButton.setText("Сохранить");
+        saveButton.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        saveButton.setOnClickListener(v -> saveMessage(messageText)); // Сохранение при нажатии
+
+        messageLayout.addView(messageView); // Добавляем текст
+        messageLayout.addView(saveButton); // Добавляем кнопку
+
+        containerLayout.addView(messageLayout); // Добавляем в контейнер
+    }
+
+    // Метод для сохранения данных по кнопке
+    private void saveMessage(String messageText) {
+        new Thread(() -> {
+            TerminalMessage message = new TerminalMessage(messageText, System.currentTimeMillis());
+            database.terminalMessageDao().insert(message);
+        }).start();
     }
 }

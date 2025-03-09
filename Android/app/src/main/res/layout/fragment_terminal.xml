@@ -5,38 +5,47 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Field for input data -->
+    <!-- Поле ввода текста -->
     <EditText
         android:id="@+id/editTextInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter message"
+        android:hint="Введите сообщение"
         android:inputType="text" />
 
-    <!-- Button for sending data -->
+    <!-- Кнопка для отправки сообщения -->
     <Button
         android:id="@+id/buttonSend"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Отправить" />
 
+    <!-- Кнопка для сохранения данных -->
     <Button
         android:id="@+id/buttonSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Сохранить данные" />
 
-    <!-- Field to display received data -->
+    <!-- ScrollView для отображения сообщений -->
     <ScrollView
         android:id="@+id/text_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-        <TextView
-            android:id="@+id/textViewOutput"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/messageContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="16dp"
-            />
+            android:orientation="vertical" />
     </ScrollView>
+
+    <!-- Вывод текста -->
+    <TextView
+        android:id="@+id/textViewOutput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="Текст будет отображаться здесь" />
+
 </LinearLayout>
