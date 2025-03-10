@@ -53,11 +53,9 @@ public class FragmentTerminal extends Fragment {
         textViewOutput = view.findViewById(R.id.textViewOutput);
         editTextInput = view.findViewById(R.id.editTextInput);
         Button buttonSend = view.findViewById(R.id.buttonSend);
-        Button buttonSave = view.findViewById(R.id.buttonSave);
         mText_scroll_view = view.findViewById(R.id.text_scroll_view);
 
         buttonSend.setOnClickListener(v -> sendMessage());
-        buttonSave.setOnClickListener(v -> saveData());
 
         return view;
     }
@@ -108,16 +106,6 @@ public class FragmentTerminal extends Fragment {
                 }
             }
         }).start();
-    }
-
-    private void saveData() {
-        String text = textViewOutput.getText().toString();
-        if (!text.isEmpty()) {
-            new Thread(() -> {
-                TerminalMessage message = new TerminalMessage(text, System.currentTimeMillis());
-                database.terminalMessageDao().insert(message);
-            }).start();
-        }
     }
 
     // Метод для добавления сообщения в ScrollView с кнопкой сохранения
