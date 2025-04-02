@@ -8,5 +8,5 @@
         android:id="@+id/bluetoothButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enable Bluetooth" />
+        android:text="Включить Bluetooth" />
 </LinearLayout>

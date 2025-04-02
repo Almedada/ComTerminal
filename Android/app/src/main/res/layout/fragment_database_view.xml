@@ -10,7 +10,7 @@
         android:id="@+id/loadButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Load Data" />
+        android:text="Загрузить базу" />
 
     <!-- Контейнер для вывода данных -->
     <ScrollView
@@ -33,6 +33,6 @@
         android:id="@+id/clearButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Clear Data"
+        android:text="Очистить базу"
         android:layout_marginTop="8dp" />
 </LinearLayout>

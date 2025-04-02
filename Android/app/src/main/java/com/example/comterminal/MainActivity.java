@@ -64,13 +64,13 @@ public class MainActivity extends AppCompatActivity {
                     tab.setText("Bluetooth");
                     break;
                 case 1:
-                    tab.setText("Scan Devices");
+                    tab.setText("Поиск устройств");
                     break;
                 case 2:
-                    tab.setText("Terminal");
+                    tab.setText("Терминал");
                     break;
                 case 3:
-                    tab.setText("Database View"); // Заголовок для нового фрагмента
+                    tab.setText("База данных");
                     break;
             }
         }).attach();
