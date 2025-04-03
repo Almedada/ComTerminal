@@ -5,34 +5,18 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Кнопка для загрузки данных -->
-    <Button
-        android:id="@+id/loadButton"
+    <!-- TabLayout для переключения между таблицами -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Загрузить базу" />
+        android:layout_marginBottom="8dp" />
 
-    <!-- Контейнер для вывода данных -->
-    <ScrollView
+    <!-- ViewPager2 для отображения фрагментов с таблицами -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:scrollbars="vertical">
+        android:layout_weight="1" />
 
-        <LinearLayout
-            android:id="@+id/containerLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-        </LinearLayout>
-
-    </ScrollView>
-
-    <!-- Кнопка для очистки данных -->
-    <Button
-        android:id="@+id/clearButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Очистить базу"
-        android:layout_marginTop="8dp" />
 </LinearLayout>
