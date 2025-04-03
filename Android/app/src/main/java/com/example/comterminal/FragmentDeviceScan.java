@@ -26,6 +26,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import com.example.comterminal.database.Device;
+import com.example.comterminal.database.AppDatabase;
+import androidx.room.Room;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -189,15 +192,36 @@ public class FragmentDeviceScan extends Fragment {
                 BluetoothSocket socket = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
                 bluetoothAdapter.cancelDiscovery();
                 socket.connect();
+
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(requireContext(), "Устройство подключено", Toast.LENGTH_SHORT).show();
                     this.socket = socket;
                     ((MainActivity) requireActivity()).setBluetoothSocket(socket);
+
+                    // Запоминаем устройство в базе данных
+                    saveDeviceToDatabase(device);
                 });
             } catch (IOException e) {
                 requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Не удалось подключиться", Toast.LENGTH_SHORT).show());
             }
         }).start();
+    }
+
+    // Метод для записи данных о подключённом устройстве в базу данных
+    private void saveDeviceToDatabase(BluetoothDevice device) {
+        // Получаем текущую временную метку
+        long currentTime = System.currentTimeMillis();
+
+        // Создаём новый объект Device
+        Device newDevice = new Device(device.getName(), device.getAddress(), currentTime);
+
+        // Получаем экземпляр базы данных Room
+        AppDatabase db = Room.databaseBuilder(requireContext(), AppDatabase.class, "device_database")
+                .allowMainThreadQueries() // Только для тестов, использовать в другом потоке
+                .build();
+
+        // Записываем данные в базу
+        db.deviceDao().insert(newDevice);
     }
 
     private void sendData(BluetoothSocket socket, String message) {

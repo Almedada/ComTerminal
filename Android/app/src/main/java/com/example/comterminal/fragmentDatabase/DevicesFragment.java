@@ -7,9 +7,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.example.comterminal.R;
-
-
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
+import androidx.room.Room;
 
 import com.example.comterminal.database.AppDatabase;
 import com.example.comterminal.database.Device;
@@ -17,67 +18,54 @@ import com.example.comterminal.database.Device;
 import java.util.List;
 
 public class DevicesFragment extends Fragment {
-
     private AppDatabase database;
     private LinearLayout containerLayout;
-    private Handler handler;
-
-    public DevicesFragment() {
-        super(R.layout.fragment_devices);
-    }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_devices, container, false);
 
-        containerLayout = view.findViewById(R.id.containerLayout);
+        // Инициализация базы данных
+        database = Room.databaseBuilder(requireContext(), AppDatabase.class, "device_database")
+                .build();
+
+        // Найдем элементы UI
         Button loadButton = view.findViewById(R.id.loadButton);
+        Button clearButton = view.findViewById(R.id.clearButton);
+        containerLayout = view.findViewById(R.id.containerLayout);
 
-        handler = new Handler();
-        database = AppDatabase.getInstance(requireContext());
-
+        // Кнопка "Загрузить устройства"
         loadButton.setOnClickListener(v -> loadData());
+
+        // Кнопка "Очистить базу"
+        clearButton.setOnClickListener(v -> clearDatabase());
+
+        return view;
     }
 
+    // Метод загрузки данных из базы
     private void loadData() {
         new Thread(() -> {
             List<Device> devices = database.deviceDao().getAllDevices();
-            handler.post(() -> {
+            getActivity().runOnUiThread(() -> {
                 containerLayout.removeAllViews();
                 for (Device device : devices) {
-                    addDeviceToLayout(device);
+                    TextView textView = new TextView(getContext());
+                    textView.setText(device.getName() + " - " + device.getAddress() + " Added at: " + device.getFormattedTimestamp());
+                    textView.setTextSize(16);
+                    textView.setPadding(8, 8, 8, 8);
+                    containerLayout.addView(textView);
                 }
             });
         }).start();
     }
 
-    private void addDeviceToLayout(Device device) {
-        String deviceInfo = device.name + " - " + device.macAddress;
-
-        LinearLayout deviceLayout = new LinearLayout(getContext());
-        deviceLayout.setOrientation(LinearLayout.HORIZONTAL);
-        deviceLayout.setPadding(0, 8, 0, 8);
-
-        TextView deviceTextView = new TextView(getContext());
-        deviceTextView.setText(deviceInfo);
-        deviceTextView.setLayoutParams(new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-
-        Button deleteButton = new Button(getContext());
-        deleteButton.setText("Удалить");
-        deleteButton.setOnClickListener(v -> deleteDevice(device));
-
-        deviceLayout.addView(deviceTextView);
-        deviceLayout.addView(deleteButton);
-        containerLayout.addView(deviceLayout);
-    }
-
-    private void deleteDevice(Device device) {
+    // Очистка базы данных
+    private void clearDatabase() {
         new Thread(() -> {
-            database.deviceDao().delete(device);
-            handler.post(() -> {
-                loadData();
-            });
+            database.deviceDao().deleteAll();
+            getActivity().runOnUiThread(() -> containerLayout.removeAllViews());
         }).start();
     }
 }
