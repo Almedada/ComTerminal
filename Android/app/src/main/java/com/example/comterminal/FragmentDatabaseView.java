@@ -113,7 +113,7 @@ public class FragmentDatabaseView extends Fragment {
             File csvFile = new File(requireContext().getExternalFilesDir(null), "message_" + message.id + ".csv");
 
             try (FileWriter writer = new FileWriter(csvFile)) {
-                writer.append("ID,Message,Timestamp\n");
+                writer.append("id,message,timestamp\n");
                 writer.append(message.id + "," + message.message.replace(",", " ") + "," + message.timestamp + "\n");
                 writer.flush();
             } catch (IOException e) {
