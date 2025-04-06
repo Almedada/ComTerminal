@@ -13,6 +13,7 @@ public class LogEntry {
     public long timestamp;
     public String status; // "подключено", "отключено", "ошибка"
 
+
     public LogEntry(int device_id, long timestamp, String status) {
         this.device_id = device_id;
         this.timestamp = timestamp;

@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import androidx.room.Room;
+import android.util.Log;
 
 import com.example.comterminal.database.AppDatabase;
 import com.example.comterminal.database.Device;
@@ -64,8 +65,19 @@ public class DevicesFragment extends Fragment {
     // Очистка базы данных
     private void clearDatabase() {
         new Thread(() -> {
-            database.deviceDao().deleteAll();
-            getActivity().runOnUiThread(() -> containerLayout.removeAllViews());
+            try {
+                // Удаляем все записи из таблицы логов перед очисткой таблицы устройств
+                database.logEntryDao().deleteAll();  // Очистить таблицу логов
+
+                // Теперь можно безопасно удалить все записи из таблицы устройств
+                database.deviceDao().deleteAll();  // Очистить таблицу устройств
+
+                // Обновляем UI
+                getActivity().runOnUiThread(() -> containerLayout.removeAllViews());
+            } catch (Exception e) {
+                Log.e("DevicesFragment", "Ошибка при очистке базы данных: ", e);
+            }
         }).start();
     }
+
 }

@@ -8,7 +8,7 @@ import java.util.Date;
 @Entity(tableName = "device")
 public class Device {
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    public int id;
     private String name;
     private String address;
     private long timestamp; // Добавлено поле для времени

@@ -39,7 +39,7 @@ public class MessagesFragment extends Fragment {
     }
 
     private static final String ACCESS_TOKEN =
-            "sl.u.AFoUVFVXPbvFylu3BihvpyXWYtLzr92xf38_uw_X6W6QA4Ti2huUh6VcVwSQr-yjlgqPyZxUYRPq7w4Tv9PavQWfToO7FA0MP08hLMnivmeL278YaCoVTh1UgLXI1--Br4o5qxxo8oxLqZqLH2jOBLtUKGx5Y9luWCxO7unRfxm1FyOxmcDkTc7f2tfqRtzognjmxSv41x5wTe7XGeq2ei-uk1bAmgwLRbepNEB90Iz5ih_mYi0vOSlNSRGqp3KAZ4nhsg1oikCLUAL-V_heHlke4Gg8w4-5nqGTRlQ6TVcw7g1FbxQR0KQb0HDG9uo62r-ftt-TfQ3DXrWbpaWrgdqvuOt4IzI6GtnCAIH-xsGNs51S6wi55UaJrR5sJPTBbeIfyRcAcSU0ZnoHhfcWvyaucyJCWEEz9sihjfEh48ZXO9fTLj2OTJdG0Lild7frwXr4U0izHDShB4S3an_7xEHMwXdo2xvBvmE5GGWRFDR0fou1x4VdTxv7Ft3P0JCS6FTyjcPG4sDTTmPe-9CEWpQZRf1br1uvsj-o6yIW-wbdr45r7NxpJKCL6rK2BLcek69tZmnYGB9velEIkPFiaz_Fo8tXEG8-cOFxXvNCvovzS-wu_toMdx585s4lOK-v-l2Nhmi-kHvRqJDzBF6NVfP_KZenXeOPCEZ5_ZRfLUri_FAme84Qdv7lYqATtBjwjK-S5ZiCae61sGShxndCJkLRYM5-li-Z82B9Dq-BsJKFGhszn58kz94AqjFb7vkIpLDW1OBVueT7gi0yCTmzVPRcjxPQ9J1MUskDxQ4-fOMwTQ-W5a7S3Q7NvMuKjQmhMoGhAKFsjRCVVzE1By_4lNw5Fn6G_hcBQCUbxmPiTmf5b15rAE72gM0jPswQT25NvDU2yJCxyO2NDodo7qD5SOUlh4xeWzADp4gXiTfTJ3syhjzQhJdhOkO4b9KH_BAJEAjih6PYV2SveVlzdYuzkFvqkrtLtjxaE1FX7HRw9DhsRUPZgUeSNNWNJczSAeZpZZQp3zTlv7wO2f5fGaNrPY0lL9wBb8TLwhSCSVK3cHiw8oMqUYVJz5SvLxYer0BB_qNqP_qWB5LNpO-bFjdjyALml2NouA81CaT7Ja3bEJ_uAYIAk6cuASbrzGu5BJg81CZuhZhDcmyTZBmp3gFbB02hZ-Nwbbtmlu0EsnUF_ZMHRo_qwdaHgkK-AfzCqb0hOSXaMDZx9vNDfdKs7W6Amk6rJxEGYqke_mPJsTCBwdk_EKZW0-sUfUv-Z2wg-cDDYcbsxInwC8RLB-DmphLM3Z0q37RbstyVD7NmzLmSaZCFSaS0OrWG4npBOwlYsBKxPsA";
+            "sl.u.AFpGI0Oe3fj42XuPFMmxa2k12AxfJEYteMs9nsKR_99FxaeC0ne3WfOliHijKa6hmjStiEN6TvhMBwWGVwY6qqzxX3tFQYNct3LqWH0NDSLXLVbOhtkpslxaIpcqULr4vveOzIUeYPi_d03rpmuCox0kd7qY19ZAIt1K__21atT2VtqVs-cPJWPNRtSZQ78VcUxBghmjWaICqX9anYXEaajZitwRM4irBJFfgtb6LSYVOj6BfYNB2qXstv8w2w1A_N5sUPmoiIXlpvMmNu62Sju_MLXqhlptNp0UtIVUHP9VAKllpJAqS3J1vPmskGb9mU9mxh9wZuCOtpk6wEb7ixXQ1F4X5b7jI_FXB2doDrDpK6-Wg4-jwUO9oBtn4WnX4OdgoqHBujTU-jsZwMTHKdy3PavOylVQIkx4QjKo_etMzuRdwKfhdOTaLmROVQV1wNFqS8y_vQRwdCUHzznpghZKDBA2gSpCRf6eMFTPx8dv99IEmglIQUVSgtwMkwNkrQdzw9XdAjv9fJdLxlXzEQ3i-MjoDaQwFlJi6e8QEJYB1lpjoF60ddGPyt0snO7LHKGkr2K_buu-XFVZXyob_F6lEbA3P_cW2FUgyQP2u4-K_8w1NL-WPoMDHdO--V-riikPaDqSJjCDTszi-94UftTapFSLPbLaxAjt5QZPLdbphT0Ogj6oyBxlWGr2ueRtXqbxhkKSZAWC9X-zYQB-ozc3dMDpKZclD0ePvEv351ZIlx8MvPWhrNXxnRkzZCL8MHBqRS9kj-He6iv9g5KwgcHQFalRnoXyCggEQr-h23B2UigioNlfDISBwLWbHZdr-s6Hntk2r52F2CL-jvbEnXdZd1Y6p5rlaqB1yjsIJL8O2c6UvBUJpACqjlYL6sypESylhLgAYzrpUqRyySu-Oh5oMI5qQV5IajGYs-399qbO1LnfNt5qLgKJSjcAUjWh2t0Wv1bYik4syo_Xg4zKh2zgReNdc59ryt3l-3ffRr31fBUhSdaQFiI7Cf9VuQcaEdkoR5I4rIDr4tBL8EH_-xHFFcIQB1XAooHd9D2R0Sk1rLOfhIurG32H0-dAm0veye5vR1aY5XHMxNRptyiuX4kcZ6PfipW56g9_2FSZKATls5ujcd_ZE7YV1cjXxM5qhPfBplQHN80tLUYwYdXyXsHCkGMjHBlhtK66ChYIJOazu1_c0sO4vqq306ktKL_vTxHMJa9K1FZfMhSjF26PLBF61Bn7ZqNCktRH8L7H2Q3UvnFESaMA7xUXPklMsXL5V3BgpphPam621xQIGJMGtibm-w9fXkdoLX1aHe9IQ76JrsgiXsr9GzBUZqTCSxwOh8c";
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -47,11 +47,15 @@ public class MessagesFragment extends Fragment {
 
         containerLayout = view.findViewById(R.id.containerLayout);
         Button loadButton = view.findViewById(R.id.loadButton);
+        Button clearButton = view.findViewById(R.id.clearButton);  // Ищем кнопку для очистки
 
         handler = new Handler();
         database = AppDatabase.getInstance(requireContext());
 
         loadButton.setOnClickListener(v -> loadData());
+
+        // Обработчик для очистки сообщений
+        clearButton.setOnClickListener(v -> clearMessages());
     }
 
     private void loadData() {
@@ -67,60 +71,45 @@ public class MessagesFragment extends Fragment {
     }
 
     private void addMessageToLayout(TerminalMessage message) {
-        // Преобразуем timestamp (метка времени в миллисекундах) в строку
         long timestamp = message.timestamp;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String formattedTime = sdf.format(new Date(timestamp));
-
-        // Формируем полное сообщение
         String fullMessage = formattedTime + " - " + message.message;
 
-        // Создаём контейнер для сообщения
         LinearLayout messageLayout = new LinearLayout(getContext());
         messageLayout.setOrientation(LinearLayout.HORIZONTAL);
         messageLayout.setPadding(0, 8, 0, 8);
 
-        // Создаём TextView для отображения сообщения
         TextView messageTextView = new TextView(getContext());
         messageTextView.setText(fullMessage);
-        messageTextView.setLayoutParams(new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        messageTextView.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
-        // Создаём кнопку "Удалить"
         Button deleteButton = new Button(getContext());
         deleteButton.setText("Удалить");
         deleteButton.setOnClickListener(v -> deleteMessage(message));
 
-        // Создаём кнопку для загрузки в Dropbox
         Button uploadButton = new Button(getContext());
         uploadButton.setText("Dropbox");
         uploadButton.setOnClickListener(v -> uploadMessageToDropbox(message));
 
-        // Добавляем TextView и кнопки в контейнер
         messageLayout.addView(messageTextView);
         messageLayout.addView(deleteButton);
         messageLayout.addView(uploadButton);
-
-        // Добавляем контейнер с сообщением в основной контейнер
         containerLayout.addView(messageLayout);
     }
 
     private void deleteMessage(TerminalMessage message) {
         new Thread(() -> {
             database.terminalMessageDao().deleteById(message.id);
-            handler.post(() -> {
-                loadData();
-            });
+            handler.post(() -> loadData());
         }).start();
     }
 
     private void uploadMessageToDropbox(TerminalMessage message) {
         new Thread(() -> {
-            // Создаем CSV файл на устройстве
             File csvFile = new File(requireContext().getExternalFilesDir(null), "message_" + message.id + ".csv");
 
             try (FileWriter writer = new FileWriter(csvFile)) {
-                // Записываем данные в CSV
                 writer.append("id,message,timestamp\n");
                 writer.append(message.id + "," + message.message.replace(",", " ") + "," + message.timestamp + "\n");
                 writer.flush();
@@ -129,7 +118,6 @@ public class MessagesFragment extends Fragment {
                 return;
             }
 
-            // Загружаем файл в Dropbox
             uploadToDropbox(csvFile, message);
         }).start();
     }
@@ -137,30 +125,36 @@ public class MessagesFragment extends Fragment {
     private void uploadToDropbox(File file, TerminalMessage message) {
         new Thread(() -> {
             try {
-                // Конфигурация Dropbox клиента
                 DbxRequestConfig config = DbxRequestConfig.newBuilder("dropbox/app").build();
                 DbxClientV2 client = new DbxClientV2(config, ACCESS_TOKEN);
 
-                // Загрузка файла в Dropbox
                 try (InputStream in = new FileInputStream(file)) {
                     client.files().uploadBuilder("/" + file.getName())
-                            .withMode(WriteMode.OVERWRITE)  // Оверрайт, если файл с таким именем уже существует
+                            .withMode(WriteMode.OVERWRITE)
                             .uploadAndFinish(in);
 
-                    // Записываем запись в таблицу DropboxUpload
                     long timestamp = System.currentTimeMillis();
                     DropboxUpload uploadRecord = new DropboxUpload(message.id, timestamp, "success");
 
-                    // Вставляем запись в базу данных
                     database.dropboxUploadDao().insert(uploadRecord);
 
-                    // Уведомление об успешной загрузке
                     handler.post(() -> Toast.makeText(getContext(), "Файл загружен: " + file.getName(), Toast.LENGTH_SHORT).show());
                 }
             } catch (Exception e) {
                 Log.e("DropboxError", "Ошибка загрузки: " + e.getMessage(), e);
                 handler.post(() -> Toast.makeText(getContext(), "Ошибка загрузки в Dropbox", Toast.LENGTH_SHORT).show());
             }
+        }).start();
+    }
+
+    // Метод для очистки всех сообщений из базы данных
+    private void clearMessages() {
+        new Thread(() -> {
+            database.terminalMessageDao().deleteAll();  // Удаляем все записи
+            handler.post(() -> {
+                loadData();  // Обновляем UI после очистки
+                Toast.makeText(getContext(), "Сообщения очищены", Toast.LENGTH_SHORT).show();
+            });
         }).start();
     }
 }

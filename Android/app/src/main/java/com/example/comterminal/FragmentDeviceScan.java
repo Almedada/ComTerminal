@@ -26,14 +26,19 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
 import com.example.comterminal.database.Device;
+import com.example.comterminal.database.LogEntry;
 import com.example.comterminal.database.AppDatabase;
 import androidx.room.Room;
+
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FragmentDeviceScan extends Fragment {
 
@@ -200,6 +205,9 @@ public class FragmentDeviceScan extends Fragment {
 
                     // Запоминаем устройство в базе данных
                     saveDeviceToDatabase(device);
+
+                    // Добавляем запись о подключении в таблицу logs
+                    saveLogToDatabase(device);
                 });
             } catch (IOException e) {
                 requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Не удалось подключиться", Toast.LENGTH_SHORT).show());
@@ -222,6 +230,21 @@ public class FragmentDeviceScan extends Fragment {
 
         // Записываем данные в базу
         db.deviceDao().insert(newDevice);
+    }
+
+    private void saveLogToDatabase(BluetoothDevice device) {
+        long currentTime = System.currentTimeMillis();
+        AppDatabase db = AppDatabase.getInstance(requireContext());
+
+        // Получаем deviceId из базы данных (по адресу устройства)
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            Device existingDevice = db.deviceDao().getDeviceByAddress(device.getAddress());
+            if (existingDevice != null) {
+                LogEntry logEntry = new LogEntry(existingDevice.id, currentTime, "подключено");
+                db.logEntryDao().insert(logEntry); // Добавляем запись о подключении в логи
+            }
+        });
     }
 
     private void sendData(BluetoothSocket socket, String message) {

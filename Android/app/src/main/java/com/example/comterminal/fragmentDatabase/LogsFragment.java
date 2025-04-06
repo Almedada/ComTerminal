@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.example.comterminal.R;
+import android.util.Log;
+
 import com.example.comterminal.database.AppDatabase;
 import com.example.comterminal.database.LogEntry;
 
@@ -31,16 +33,21 @@ public class LogsFragment extends Fragment {
 
         containerLayout = view.findViewById(R.id.containerLayout);
         Button loadButton = view.findViewById(R.id.loadButton);
+        Button clearButton = view.findViewById(R.id.clearButton);  // Добавляем кнопку для очистки
 
         handler = new Handler();
         database = AppDatabase.getInstance(requireContext());
 
         loadButton.setOnClickListener(v -> loadData());
+
+        // Обработчик для кнопки очистки логов
+        clearButton.setOnClickListener(v -> clearLogs());
     }
 
     private void loadData() {
         new Thread(() -> {
             List<LogEntry> logs = database.logEntryDao().getAllLogs();
+            Log.d("LogsFragment", "Logs loaded: " + logs.size()); // Логируем количество загруженных логов
             handler.post(() -> {
                 containerLayout.removeAllViews();
                 for (LogEntry log : logs) {
@@ -52,6 +59,7 @@ public class LogsFragment extends Fragment {
 
     private void addLogToLayout(LogEntry log) {
         String logInfo = log.timestamp + " - " + log.status;
+        Log.d("LogsFragment", "Adding log: " + logInfo); // Добавь это для отладки
 
         LinearLayout logLayout = new LinearLayout(getContext());
         logLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -75,8 +83,22 @@ public class LogsFragment extends Fragment {
         new Thread(() -> {
             database.logEntryDao().delete(log);
             handler.post(() -> {
-                loadData();
+                loadData();  // Обновляем список после удаления
             });
+        }).start();
+    }
+
+    // Метод для очистки всех логов
+    private void clearLogs() {
+        new Thread(() -> {
+            try {
+                database.logEntryDao().deleteAll();  // Очистить все записи в таблице логов
+                handler.post(() -> {
+                    loadData();  // Обновляем UI после очистки
+                });
+            } catch (Exception e) {
+                Log.e("LogsFragment", "Ошибка при очистке логов: ", e);
+            }
         }).start();
     }
 }
