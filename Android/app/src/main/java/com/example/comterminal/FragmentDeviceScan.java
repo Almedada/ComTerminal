@@ -215,6 +215,8 @@ public class FragmentDeviceScan extends Fragment {
         }).start();
     }
 
+
+
     // Метод для записи данных о подключённом устройстве в базу данных
     private void saveDeviceToDatabase(BluetoothDevice device) {
         // Получаем текущую временную метку
