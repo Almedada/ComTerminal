@@ -26,7 +26,7 @@ public abstract class AppDatabase extends RoomDatabase {
                     // context.deleteDatabase("terminal_database");
 
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                                    AppDatabase.class, "terminal_database")
+                                    AppDatabase.class, "device_database")
                             .fallbackToDestructiveMigration()  // Очистка старой базы данных
                             .build();
                 }
