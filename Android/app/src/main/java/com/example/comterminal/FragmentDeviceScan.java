@@ -32,7 +32,6 @@ import com.example.comterminal.database.LogEntry;
 import com.example.comterminal.database.AppDatabase;
 import androidx.room.Room;
 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -109,6 +108,9 @@ public class FragmentDeviceScan extends Fragment {
         sendMessageButton.setOnClickListener(v -> {
             if (socket != null && socket.isConnected()) {
                 sendData(socket, "Соединение разорвано!");
+
+                // Запись об отключении в базу данных
+                saveDisconnectionLog(socket);
             } else {
                 Toast.makeText(requireContext(), "Нет подключенного устройства", Toast.LENGTH_SHORT).show();
             }
@@ -215,22 +217,14 @@ public class FragmentDeviceScan extends Fragment {
         }).start();
     }
 
-
-
-    // Метод для записи данных о подключённом устройстве в базу данных
     private void saveDeviceToDatabase(BluetoothDevice device) {
-        // Получаем текущую временную метку
         long currentTime = System.currentTimeMillis();
-
-        // Создаём новый объект Device
         Device newDevice = new Device(device.getName(), device.getAddress(), currentTime);
 
-        // Получаем экземпляр базы данных Room
         AppDatabase db = Room.databaseBuilder(requireContext(), AppDatabase.class, "device_database")
                 .allowMainThreadQueries() // Только для тестов, использовать в другом потоке
                 .build();
 
-        // Записываем данные в базу
         db.deviceDao().insert(newDevice);
     }
 
@@ -238,13 +232,27 @@ public class FragmentDeviceScan extends Fragment {
         long currentTime = System.currentTimeMillis();
         AppDatabase db = AppDatabase.getInstance(requireContext());
 
-        // Получаем deviceId из базы данных (по адресу устройства)
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             Device existingDevice = db.deviceDao().getDeviceByAddress(device.getAddress());
             if (existingDevice != null) {
                 LogEntry logEntry = new LogEntry(existingDevice.id, currentTime, "подключено");
-                db.logEntryDao().insert(logEntry); // Добавляем запись о подключении в логи
+                db.logEntryDao().insert(logEntry);
+            }
+        });
+    }
+
+    private void saveDisconnectionLog(BluetoothSocket socket) {
+        long currentTime = System.currentTimeMillis();
+        AppDatabase db = AppDatabase.getInstance(requireContext());
+
+        // Получаем deviceId из базы данных (по адресу устройства)
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            Device existingDevice = db.deviceDao().getDeviceByAddress(socket.getRemoteDevice().getAddress());
+            if (existingDevice != null) {
+                LogEntry logEntry = new LogEntry(existingDevice.id, currentTime, "отключено");
+                db.logEntryDao().insert(logEntry); // Добавляем запись об отключении в логи
             }
         });
     }
