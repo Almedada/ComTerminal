@@ -52,8 +52,13 @@ public class DevicesFragment extends Fragment {
             getActivity().runOnUiThread(() -> {
                 containerLayout.removeAllViews();
                 for (Device device : devices) {
+                    // Форматируем строку, чтобы включить id устройства
+                    String deviceInfo = "ID: " + device.getId() + " | " + device.getName() + " - " + device.getAddress()
+                            + " | Добавлено: " + device.getFormattedTimestamp();
+
+                    // Создаем TextView для отображения информации о каждом устройстве
                     TextView textView = new TextView(getContext());
-                    textView.setText(device.getName() + " - " + device.getAddress() + " Added at: " + device.getFormattedTimestamp());
+                    textView.setText(deviceInfo);
                     textView.setTextSize(16);
                     textView.setPadding(8, 8, 8, 8);
                     containerLayout.addView(textView);

@@ -50,7 +50,7 @@ public class FragmentBluetooth extends Fragment {
         if (!bluetoothAdapter.isEnabled()) {
             startActivity(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE));
         } else {
-            Toast.makeText(getContext(), "Bluetooth is already enabled", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Bluetooth уже включен", Toast.LENGTH_SHORT).show();
         }
     }
 }

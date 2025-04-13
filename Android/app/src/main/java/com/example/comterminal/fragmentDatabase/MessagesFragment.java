@@ -2,14 +2,14 @@ package com.example.comterminal.fragmentDatabase;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import android.widget.Toast;
 import android.util.Log;
+import android.text.Layout;
 
 import androidx.fragment.app.Fragment;
 
@@ -26,6 +26,8 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class MessagesFragment extends Fragment {
@@ -80,16 +82,41 @@ public class MessagesFragment extends Fragment {
         messageLayout.setOrientation(LinearLayout.HORIZONTAL);
         messageLayout.setPadding(0, 8, 0, 8);
 
+        // Уменьшаем TextView для текста
         TextView messageTextView = new TextView(getContext());
         messageTextView.setText(fullMessage);
         messageTextView.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        messageTextView.setMaxLines(Integer.MAX_VALUE);  // Убираем ограничение на количество строк
+        messageTextView.setEllipsize(null);  // Убираем троеточие в конце
+        messageTextView.setPadding(8, 8, 8, 8);  // Отступы для текста
+        messageTextView.setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE);  // Обработка длинных слов
 
+        // Уменьшаем кнопку "Удалить"
         Button deleteButton = new Button(getContext());
         deleteButton.setText("Удалить");
+        deleteButton.setTextSize(10f);  // Уменьшаем размер текста
+        LinearLayout.LayoutParams deleteButtonParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        deleteButtonParams.width = 200;  // Фиксированная ширина
+        deleteButtonParams.height = 120;  // Фиксированная высота
+        deleteButton.setLayoutParams(deleteButtonParams);
+        deleteButton.setPadding(8, 8, 8, 8);  // Отступы для кнопки
         deleteButton.setOnClickListener(v -> deleteMessage(message));
 
+        // Уменьшаем кнопку "Dropbox"
         Button uploadButton = new Button(getContext());
         uploadButton.setText("Dropbox");
+        uploadButton.setTextSize(10f);  // Уменьшаем размер текста
+        LinearLayout.LayoutParams uploadButtonParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        uploadButtonParams.width = 200;  // Фиксированная ширина
+        uploadButtonParams.height = 120;  // Фиксированная высота
+        uploadButton.setLayoutParams(uploadButtonParams);
+        uploadButton.setPadding(8, 8, 8, 8);  // Отступы для кнопки
         uploadButton.setOnClickListener(v -> uploadMessageToDropbox(message));
 
         messageLayout.addView(messageTextView);

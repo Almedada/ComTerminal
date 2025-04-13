@@ -15,7 +15,10 @@ import android.util.Log;
 import com.example.comterminal.database.AppDatabase;
 import com.example.comterminal.database.LogEntry;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class LogsFragment extends Fragment {
 
@@ -33,21 +36,20 @@ public class LogsFragment extends Fragment {
 
         containerLayout = view.findViewById(R.id.containerLayout);
         Button loadButton = view.findViewById(R.id.loadButton);
-        Button clearButton = view.findViewById(R.id.clearButton);  // Добавляем кнопку для очистки
+        Button clearButton = view.findViewById(R.id.clearButton);  // Кнопка очистки логов
 
         handler = new Handler();
         database = AppDatabase.getInstance(requireContext());
 
         loadButton.setOnClickListener(v -> loadData());
 
-        // Обработчик для кнопки очистки логов
         clearButton.setOnClickListener(v -> clearLogs());
     }
 
     private void loadData() {
         new Thread(() -> {
             List<LogEntry> logs = database.logEntryDao().getAllLogs();
-            Log.d("LogsFragment", "Logs loaded: " + logs.size()); // Логируем количество загруженных логов
+            Log.d("LogsFragment", "Logs loaded: " + logs.size());
             handler.post(() -> {
                 containerLayout.removeAllViews();
                 for (LogEntry log : logs) {
@@ -58,8 +60,10 @@ public class LogsFragment extends Fragment {
     }
 
     private void addLogToLayout(LogEntry log) {
-        String logInfo = log.timestamp + " - " + log.status;
-        Log.d("LogsFragment", "Adding log: " + logInfo); // Добавь это для отладки
+        String formattedTime = formatTimestamp(log.timestamp);
+        String logInfo = "ID устройства: " + log.device_id + " | " + formattedTime + " - " + log.status;
+
+        Log.d("LogsFragment", "Adding log: " + logInfo);
 
         LinearLayout logLayout = new LinearLayout(getContext());
         logLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -79,23 +83,23 @@ public class LogsFragment extends Fragment {
         containerLayout.addView(logLayout);
     }
 
+    private String formatTimestamp(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, HH:mm:ss", Locale.getDefault());
+        return sdf.format(new Date(timestamp));
+    }
+
     private void deleteLog(LogEntry log) {
         new Thread(() -> {
             database.logEntryDao().delete(log);
-            handler.post(() -> {
-                loadData();  // Обновляем список после удаления
-            });
+            handler.post(() -> loadData());
         }).start();
     }
 
-    // Метод для очистки всех логов
     private void clearLogs() {
         new Thread(() -> {
             try {
-                database.logEntryDao().deleteAll();  // Очистить все записи в таблице логов
-                handler.post(() -> {
-                    loadData();  // Обновляем UI после очистки
-                });
+                database.logEntryDao().deleteAll();
+                handler.post(() -> loadData());
             } catch (Exception e) {
                 Log.e("LogsFragment", "Ошибка при очистке логов: ", e);
             }
