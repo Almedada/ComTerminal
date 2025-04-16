@@ -28,8 +28,8 @@ public class DevicesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_devices, container, false);
 
         // Инициализация базы данных
-        database = Room.databaseBuilder(requireContext(), AppDatabase.class, "device_database")
-                .build();
+        database = AppDatabase.getInstance(requireContext());
+
 
         // Найдем элементы UI
         Button loadButton = view.findViewById(R.id.loadButton);

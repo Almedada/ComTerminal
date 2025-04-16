@@ -30,7 +30,6 @@ import androidx.fragment.app.Fragment;
 import com.example.comterminal.database.Device;
 import com.example.comterminal.database.LogEntry;
 import com.example.comterminal.database.AppDatabase;
-import androidx.room.Room;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -49,7 +48,6 @@ public class FragmentDeviceScan extends Fragment {
     private static final int REQUEST_BLUETOOTH_PERMISSIONS = 1;
 
     private ActivityResultLauncher<Intent> enableBluetoothLauncher;
-
     private ProgressBar progressBar;
 
     @Override
@@ -79,13 +77,11 @@ public class FragmentDeviceScan extends Fragment {
             }
         });
 
-        // Показать уже подключенные устройства
         for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
             connectedDevicesList.add(device.getName() + "\n" + device.getAddress());
         }
         connectedDevicesAdapter.notifyDataSetChanged();
 
-        // Обработчик нажатия на подключенные устройства
         connectedDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
             String deviceInfo = connectedDevicesList.get(position);
             String deviceAddress = deviceInfo.substring(deviceInfo.indexOf("\n") + 1);
@@ -93,7 +89,6 @@ public class FragmentDeviceScan extends Fragment {
             connectToDevice(device);
         });
 
-        // Обработчик нажатия на найденные устройства
         deviceListView.setOnItemClickListener((parent, view1, position, id) -> {
             String deviceInfo = deviceList.get(position);
             String deviceAddress = deviceInfo.substring(deviceInfo.indexOf("\n") + 1);
@@ -108,8 +103,6 @@ public class FragmentDeviceScan extends Fragment {
         sendMessageButton.setOnClickListener(v -> {
             if (socket != null && socket.isConnected()) {
                 sendData(socket, "Соединение разорвано!");
-
-                // Запись об отключении в базу данных
                 saveDisconnectionLog(socket);
             } else {
                 Toast.makeText(requireContext(), "Нет подключенного устройства", Toast.LENGTH_SHORT).show();
@@ -118,7 +111,6 @@ public class FragmentDeviceScan extends Fragment {
 
         checkAndRequestPermissions();
 
-        // Регистрация BroadcastReceiver
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
@@ -156,7 +148,7 @@ public class FragmentDeviceScan extends Fragment {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startBluetoothScan();
             } else {
-                Toast.makeText(requireContext(), "Bluetooth permissions required", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Требуются разрешения Bluetooth", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -204,11 +196,7 @@ public class FragmentDeviceScan extends Fragment {
                     Toast.makeText(requireContext(), "Устройство подключено", Toast.LENGTH_SHORT).show();
                     this.socket = socket;
                     ((MainActivity) requireActivity()).setBluetoothSocket(socket);
-
-                    // Запоминаем устройство в базе данных
                     saveDeviceToDatabase(device);
-
-                    // Добавляем запись о подключении в таблицу logs
                     saveLogToDatabase(device);
                 });
             } catch (IOException e) {
@@ -221,19 +209,15 @@ public class FragmentDeviceScan extends Fragment {
         long currentTime = System.currentTimeMillis();
         Device newDevice = new Device(device.getName(), device.getAddress(), currentTime);
 
-        AppDatabase db = Room.databaseBuilder(requireContext(), AppDatabase.class, "device_database")
-                .allowMainThreadQueries() // Только для тестов, использовать в другом потоке
-                .build();
-
-        db.deviceDao().insert(newDevice);
+        AppDatabase db = AppDatabase.getInstance(requireContext());
+        Executors.newSingleThreadExecutor().execute(() -> db.deviceDao().insert(newDevice));
     }
 
     private void saveLogToDatabase(BluetoothDevice device) {
         long currentTime = System.currentTimeMillis();
         AppDatabase db = AppDatabase.getInstance(requireContext());
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
+        Executors.newSingleThreadExecutor().execute(() -> {
             Device existingDevice = db.deviceDao().getDeviceByAddress(device.getAddress());
             if (existingDevice != null) {
                 LogEntry logEntry = new LogEntry(existingDevice.id, currentTime, "подключено");
@@ -246,13 +230,11 @@ public class FragmentDeviceScan extends Fragment {
         long currentTime = System.currentTimeMillis();
         AppDatabase db = AppDatabase.getInstance(requireContext());
 
-        // Получаем deviceId из базы данных (по адресу устройства)
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
+        Executors.newSingleThreadExecutor().execute(() -> {
             Device existingDevice = db.deviceDao().getDeviceByAddress(socket.getRemoteDevice().getAddress());
             if (existingDevice != null) {
                 LogEntry logEntry = new LogEntry(existingDevice.id, currentTime, "отключено");
-                db.logEntryDao().insert(logEntry); // Добавляем запись об отключении в логи
+                db.logEntryDao().insert(logEntry);
             }
         });
     }
