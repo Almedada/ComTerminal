@@ -5,15 +5,15 @@ import androidx.room.PrimaryKey;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+// Аннотация @Entity указывает, что класс представляет таблицу в базе данных Room.
 @Entity(tableName = "device")
 public class Device {
     @PrimaryKey(autoGenerate = true)
     public int id;
     private String name;
     private String address;
-    private long timestamp; // Добавлено поле для времени
+    private long timestamp;
 
-    // Конструктор с тремя аргументами
     public Device(String name, String address, long timestamp) {
         this.name = name;
         this.address = address;

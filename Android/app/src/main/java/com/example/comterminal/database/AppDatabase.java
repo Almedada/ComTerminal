@@ -10,13 +10,12 @@ public abstract class AppDatabase extends RoomDatabase {
 
     private static volatile AppDatabase INSTANCE;
 
-    // Абстрактные методы для получения DAO
     public abstract TerminalMessageDao terminalMessageDao();
     public abstract DeviceDao deviceDao();
     public abstract LogEntryDao logEntryDao();
     public abstract DropboxUploadDao dropboxUploadDao();
 
-    // Метод для получения экземпляра базы данных с применением паттерна Singleton
+    // Метод для получения экземпляра базы данных
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {

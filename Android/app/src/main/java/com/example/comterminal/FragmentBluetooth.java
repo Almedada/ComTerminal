@@ -18,23 +18,26 @@ import androidx.fragment.app.Fragment;
 
 public class FragmentBluetooth extends Fragment {
 
-    private BluetoothAdapter bluetoothAdapter;
-    private Button bluetoothButton;
+    private BluetoothAdapter bluetoothAdapter;  // Адаптер для работы с Bluetooth
+    private Button bluetoothButton;             // Кнопка управления Bluetooth
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_bluetooth, container, false);
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        bluetoothButton = view.findViewById(R.id.bluetoothButton);
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); // Получение адаптера
+        bluetoothButton = view.findViewById(R.id.bluetoothButton); // Привязка кнопки
 
+        // Проверка на поддержку Bluetooth
         if (bluetoothAdapter == null) {
             bluetoothButton.setText("Bluetooth not supported");
             bluetoothButton.setEnabled(false);
             return view;
         }
 
+        // Обработчик нажатия кнопки
         bluetoothButton.setOnClickListener(v -> {
+            // Проверка разрешения на Android 12+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                     ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 1);
@@ -46,6 +49,7 @@ public class FragmentBluetooth extends Fragment {
         return view;
     }
 
+    // Включение Bluetooth (если отключён)
     private void toggleBluetooth() {
         if (!bluetoothAdapter.isEnabled()) {
             startActivity(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE));
