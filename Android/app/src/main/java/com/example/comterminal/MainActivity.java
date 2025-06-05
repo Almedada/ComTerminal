@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
     private BluetoothSocket bluetoothSocket;
-    private FragmentTerminal terminalFragment; // Hold a reference to the Terminal fragment
+    private FragmentTerminal terminalFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,11 +25,11 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
 
-        // Initialize fragments
+        // Инициализация фрагментов
         terminalFragment = new FragmentTerminal();
-        FragmentDatabaseView databaseFragment = new FragmentDatabaseView(); // Новый фрагмент
+        FragmentDatabaseView databaseFragment = new FragmentDatabaseView();
 
-        // Set the adapter for ViewPager2
+        // Устанавливаем адаптер для ViewPager2
         viewPager.setAdapter(new FragmentStateAdapter(this) {
             @NonNull
             @Override
@@ -40,12 +40,13 @@ public class MainActivity extends AppCompatActivity {
                     case 1:
                         return new FragmentDeviceScan();
                     case 2:
+                        // Если Bluetooth-сокет существует, передаем его в терминал
                         if (bluetoothSocket != null) {
                             terminalFragment.setBluetoothSocket(bluetoothSocket);
                         }
                         return terminalFragment;
                     case 3:
-                        return databaseFragment; // Новый фрагмент для просмотра базы данных
+                        return databaseFragment;
                     default:
                         throw new IllegalArgumentException("Invalid position");
                 }
@@ -53,12 +54,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public int getItemCount() {
-                return 4; // Обновляем количество вкладок
+                return 4; // Общее количество вкладок
             }
         });
 
-        // Link TabLayout with ViewPager2
+        // Связываем TabLayout с ViewPager2
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            // Устанавливаем текст для каждой вкладки в зависимости от позиции
             switch (position) {
                 case 0:
                     tab.setText("Bluetooth");
@@ -73,21 +75,16 @@ public class MainActivity extends AppCompatActivity {
                     tab.setText("База данных");
                     break;
             }
-        }).attach();
+        }).attach(); // Подключаем TabLayout и ViewPager2
     }
 
-    /**
-     * Method to get the BluetoothSocket.
-     */
     public BluetoothSocket getBluetoothSocket() {
         return bluetoothSocket;
     }
 
-    /**
-     * Update Bluetooth socket dynamically and notify the Terminal fragment.
-     */
     public void setBluetoothSocket(BluetoothSocket socket) {
         this.bluetoothSocket = socket;
+        // Если фрагмент терминала уже создан, обновляем его сокет
         if (terminalFragment != null) {
             terminalFragment.setBluetoothSocket(socket);
         }

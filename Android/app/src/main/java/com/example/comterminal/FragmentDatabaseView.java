@@ -12,19 +12,22 @@ import com.google.android.material.tabs.TabLayoutMediator;
 public class FragmentDatabaseView extends Fragment {
 
     public FragmentDatabaseView() {
-        super(R.layout.fragment_database_view);
+        super(R.layout.fragment_database_view); // Привязка layout-файла к фрагменту
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Получаем ссылки на TabLayout и ViewPager2
         TabLayout tabLayout = view.findViewById(R.id.tabLayout);
         ViewPager2 viewPager = view.findViewById(R.id.viewPager);
 
+        // Устанавливаем адаптер для ViewPager2
         DatabasePagerAdapter pagerAdapter = new DatabasePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
 
+        // Привязка табов к ViewPager2
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             switch (position) {
                 case 0: tab.setText("Devices"); break;
