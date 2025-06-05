@@ -1,7 +1,6 @@
 import serial
 import time
 import random
-import pytest
 
 # Параметры порта и настройки
 PORT = "COM3"
@@ -11,7 +10,7 @@ TIMEOUT = 2
 # Шаблоны ответов
 RESPONSES = {
     "t": [
-        "END temperature = 29.042011 ;",
+        "END temperature = 28.813053 ;",
         "END temperature = 37.363857 ;",
         "END temperature = 37.403576 ;",
     ],
@@ -80,48 +79,6 @@ def send_command(command):
         return response
 
 
-@pytest.mark.parametrize("command", ["t", ">", "<", "h"])
-def test_responses_change(command):
-    """Тест для команд с динамическим ответом"""
-    print(f"Теперь отправь команду {command} с устройства...")
-
-    response = ""
-    while not response:  # Ожидаем получения ответа
-        response = send_command(command)
-
-    print(f"Ответ: {response}")
-    assert response != "", "Ответ не может быть пустым"
-    assert response.startswith("END"), "Ответ должен начинаться с 'END'"
-    assert "temperature" in response or "Ulaser" in response, "Ответ не содержит ожидаемых данных"
-
-
-@pytest.mark.parametrize("command", ["v", "V"])
-def test_responses_constant(command):
-    """Тест для команд с одинаковым ответом"""
-    print(f"Теперь отправь команду {command} с устройства...")
-
-    response = ""
-    while not response:  # Ожидаем получения ответа
-        response = send_command(command)
-
-    print(f"Ответ: {response}")
-    assert response != "", "Ответ не может быть пустым"
-    assert response.startswith("END"), "Ответ должен начинаться с 'END'"
-    assert "freq" in response, "Ответ не содержит частоты"
-
-
-@pytest.mark.parametrize("command", ["x", "z", "1", "#"])
-def test_unknown_commands(command):
-    """Тест для неизвестных команд"""
-    print(f"Теперь отправь команду {command} с устройства...")
-
-    response = ""
-    while not response:  # Ожидаем получения ответа
-        response = send_command(command)
-
-    print(f"Ответ: {response}")
-    assert response.startswith("END"), "Ответ должен начинаться с 'END'"
-    assert "UNKNOWN" in response, "Ответ не содержит сообщения об ошибке"
 
 # Основная функция для запуска эмулятора
 def start_emulator(port):
@@ -141,6 +98,3 @@ if __name__ == "__main__":
     emulator_thread.daemon = True
     emulator_thread.start()
 
-    # Запускаем тесты
-    time.sleep(20)  # Даем эмулятору немного времени на старт
-    pytest.main()

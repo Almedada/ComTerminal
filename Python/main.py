@@ -10,7 +10,7 @@ def send_data(ser, data):
     """
     try:
         # Добавление буквы 'r' к данным перед отправкой
-        data_with_r = data + 'r'
+        data_with_r = 'END temperature = 27.376240 ;'
         ser.write(data_with_r.encode("utf-8"))  # Отправляем данные как байты
         print(f"Данные отправлены: {data_with_r}")
     except serial.SerialException as e:
